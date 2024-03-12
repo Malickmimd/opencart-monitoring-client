@@ -1,27 +1,21 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { PageNotFoundComponent } from './shared/components';
-
-import { HomeRoutingModule } from './home/home-routing.module';
-import { DetailRoutingModule } from './detail/detail-routing.module';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { OrderSalesComponent } from './order-sales/order-sales.component';
+import { UserActivityComponent } from './user-activity/user-activity.component';
+import { ProductAnalysisComponent } from './product-analysis/product-analysis.component';
 
 const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full'
-  },
-  {
-    path: '**',
-    component: PageNotFoundComponent
-  }
+  { path: 'dashboard', component: DashboardComponent },
+  { path: 'order-sale', component: OrderSalesComponent },
+  { path: 'user-activity', component: UserActivityComponent },
+  { path: 'product-analysis', component: ProductAnalysisComponent },
+  { path: '',   redirectTo: 'dashboard', pathMatch: 'full' },
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, {}),
-    HomeRoutingModule,
-    DetailRoutingModule
+    RouterModule.forRoot(routes),
   ],
   exports: [RouterModule]
 })
