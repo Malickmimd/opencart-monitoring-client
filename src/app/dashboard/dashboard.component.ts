@@ -1,77 +1,108 @@
 import { Component, OnInit } from '@angular/core';
-import { CardComponent } from '../card/card.component';
-import { Card } from '../core/models/card.model';
+import { CardComponent } from '../core/components/card/card.component';
 import { NgForOf, NgStyle } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { Order } from '../core/models/order.model';
 import { Column } from '../core/models/column.model';
+import { CardListComponent } from '../core/components/card-list/card-list.component';
+import { Observable } from 'rxjs';
+import { ElectronService } from '../core/services';
+import { AsyncPipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CardComponent, NgForOf, ChartModule, TableModule, NgStyle],
+  imports: [CardComponent, NgForOf, ChartModule, TableModule, NgStyle, CardListComponent, AsyncPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit{
-    Cards!: Card[]
+    numberOfOrders$!: Observable<number>
+    numberOfProducts$!: Observable<number>
+    numberOfCustomers$!: Observable<number>
     data: any;
     options: any;
     basicData: any;
     basicOptions: any;
-    orders!: Order[];
+    ordersList$!: Observable<Order[]>;
     cols!: Column[];
+    Data: number[] = []
+
+    constructor(private dashboardService: ElectronService) {}
 
     ngOnInit(): void {
-        this.Cards = [
-          {
-            title: 'Total Orders',
-            amount: 5,
-            icon: 'fa-solid fa-cart-shopping fa-2xl'
-          },
-          {
-            title: 'Total Products',
-            amount: 30,
-            icon: 'fa-solid fa-gift fa-2xl'
-          },
-          {
-            title: 'Total Customers',
-            amount: 8,
-            icon: 'fa-solid fa-users fa-2xl'
-          }
-        ]
-        this.orders = [
-          {
-            id: 1,
-            firstname: "Abdoulaye",
-            lastname: "Wade",
-            status: "succès"
-          },
-          {
-            id: 2,
-            firstname: "Abdoulaye",
-            lastname: "Wade",
-            status: "succès"
-          },
-          {
-            id: 3,
-            firstname: "Rokhaya",
-            lastname: "Pouye",
-            status: "succès"
-          },
-        ]
+        this.numberOfOrders$ = this.dashboardService.getNumberOfOrders()
+        this.numberOfProducts$ = this.dashboardService.getNumberOfProducts()
+        this.numberOfCustomers$ = this.dashboardService.getNumberOfCustomers()
+
+        // Créez un tableau d'observables et attendez qu'ils soient tous résolus
+    const observables: Observable<number>[] = [
+        this.numberOfOrders$,
+        this.numberOfProducts$,
+        this.numberOfCustomers$
+      ];
+  
+      // Utilisez forkJoin pour combiner les observables et attendre que toutes les valeurs soient reçues
+    forkJoin(observables).subscribe({
+        next: (values: number[]) => {
+          // Initialisez les propriétés du composant avec les valeurs reçues
+          this.Data = values;
+  
+          // Initialisez basicData avec this.Data après que toutes les valeurs ont été reçues
+          const documentStyle = getComputedStyle(document.documentElement);
+          this.basicData = {
+            labels: ['Orders', 'Products', 'Customers'],
+            datasets: [
+              {
+                data: this.Data,
+                backgroundColor: [
+                  documentStyle.getPropertyValue('--blue-500'),
+                  documentStyle.getPropertyValue('--yellow-500'),
+                  documentStyle.getPropertyValue('--green-500')
+                ],
+                hoverBackgroundColor: [
+                  documentStyle.getPropertyValue('--blue-400'),
+                  documentStyle.getPropertyValue('--yellow-400'),
+                  documentStyle.getPropertyValue('--green-400')
+                ]
+              }
+            ]
+        }
+    }
+      });
+        
+        
+        // Orders List
+        this.ordersList$ = this.dashboardService.getOrdersList()
         this.cols = [
           { field: 'id', header: 'ID Order' },
           { field: 'firstname', header: 'Firstname' },
           { field: 'lastname', header: 'Lastname' },
           { field: 'status', header: 'Status' }
         ];
+        // Orders List
+
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+        
+        //Graphe2 config
+        this.basicOptions = {
+          cutout: '60%',
+          plugins: {
+              legend: {
+                  labels: {
+                      color: textColor
+                    }
+                }
+            }
+        };
+        //Graphe2 config
 
+        //Graphe1 Config
         this.data = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
             datasets: [
@@ -91,7 +122,7 @@ export class DashboardComponent implements OnInit{
                 }
             ]
         };
-
+        
         this.options = {
             maintainAspectRatio: false,
             aspectRatio: 0.6,
@@ -123,27 +154,7 @@ export class DashboardComponent implements OnInit{
                 }
             }
         };
-        this.basicData = {
-          labels: ['A', 'B', 'C'],
-          datasets: [
-              {
-                  data: [300, 50, 100],
-                  backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--yellow-500'), documentStyle.getPropertyValue('--green-500')],
-                  hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--yellow-400'), documentStyle.getPropertyValue('--green-400')]
-              }
-          ]
-      };
+        //Graphe1 config
 
-
-      this.basicOptions = {
-          cutout: '60%',
-          plugins: {
-              legend: {
-                  labels: {
-                      color: textColor
-                  }
-              }
-          }
-      };
     }
 }

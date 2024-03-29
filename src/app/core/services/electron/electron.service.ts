@@ -5,6 +5,9 @@ import { Injectable } from '@angular/core';
 import { ipcRenderer, webFrame } from 'electron';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Order } from '../../models/order.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +18,7 @@ export class ElectronService {
   childProcess!: typeof childProcess;
   fs!: typeof fs;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     // Conditional imports
     if (this.isElectron) {
       this.ipcRenderer = (window as any).require('electron').ipcRenderer;
@@ -53,4 +56,17 @@ export class ElectronService {
   get isElectron(): boolean {
     return !!(window && window.process && window.process.type);
   }
+  getNumberOfOrders () : Observable<number> {
+    return this.http.get<number>('http://localhost:3000/orders')
+  }
+  getNumberOfProducts () : Observable<number> {
+    return this.http.get<number>('http://localhost:3000/products')
+  }
+  getNumberOfCustomers () : Observable<number> {
+    return this.http.get<number>('http://localhost:3000/customers')
+  }
+  getOrdersList () : Observable<Order[]> {
+    return this.http.get<Order[]>('http://localhost:3000/orders/list')
+}
+
 }

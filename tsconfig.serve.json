@@ -18,7 +18,11 @@
     ]
   },
   "files": [
-    "app/main.ts"
+    "app/main.ts",
+    "./src/app/core/models/menu-item.model.ts",
+    "./src/app/core/models/card.model.ts",
+    "./src/app/core/models/order.model.ts",
+    "./src/app/core/models/column.model.ts",
   ],
   "exclude": [
     "node_modules",

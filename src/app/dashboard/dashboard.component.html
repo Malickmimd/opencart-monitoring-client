@@ -1,9 +1,5 @@
 <div class="container">
-
-    <div class="row">
-        <app-card *ngFor="let Card of Cards" [card]="Card"></app-card>
-    </div>
-
+    <app-card-list></app-card-list>
     <div class="card-div">
         <div class="chart-1">
             <p-chart type="line" [data]="data" [options]="options"></p-chart>
@@ -14,8 +10,8 @@
     </div> 
 
     <div class="card-table">
-        <p-table [columns]="cols" [value]="orders" [tableStyle]="{ 'min-width': '50rem' }">
-            <ng-template pTemplate="caption"> Orders Details </ng-template>
+        <p-table [columns]="cols" [value]="ordersList$ | async" [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template pTemplate="caption"> Orders List </ng-template>
             <ng-template pTemplate="header" let-columns>
                 <tr>
                     <th *ngFor="let col of columns">

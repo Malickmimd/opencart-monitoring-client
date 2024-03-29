@@ -9,5 +9,6 @@
   "main": "main.js",
   "private": true,
   "dependencies": {
+    "primeng": "^17.9.0"
   }
 }

@@ -17,9 +17,6 @@ export class MenuComponent implements OnInit{
     ngOnInit() {
         this.items = [
             { label: 'Dashboard', icon: 'fa-solid fa-chart-line', routerLink:'dashboard' },
-            { label: 'Orders and Sales', icon: 'fa-solid fa-cart-shopping', routerLink:'order-sale' },
-            { label: 'User Activity', icon: 'fa-solid fa-users', routerLink:'user-activity' },
-            { label: 'Product Analysis', icon: 'fa-solid fa-gift', routerLink:'product-analysis' }
         ];
 
         this.activeItem = this.items[0];
