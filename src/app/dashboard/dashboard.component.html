@@ -7,11 +7,11 @@
         <div class="chart-2">
             <p-chart type="doughnut" [data]="basicData" [options]="basicOptions"></p-chart>
         </div>
-    </div> 
+    </div>
 
     <div class="card-table">
         <p-table [columns]="cols" [value]="ordersList$ | async" [tableStyle]="{ 'min-width': '50rem' }">
-            <ng-template pTemplate="caption"> Orders List </ng-template>
+            <ng-template pTemplate="caption"> details par ordre</ng-template>
             <ng-template pTemplate="header" let-columns>
                 <tr>
                     <th *ngFor="let col of columns">
