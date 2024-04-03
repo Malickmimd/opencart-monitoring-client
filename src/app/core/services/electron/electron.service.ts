@@ -67,6 +67,9 @@ export class ElectronService {
   }
   getOrdersList () : Observable<Order[]> {
     return this.http.get<Order[]>('http://localhost:3000/orders/list')
-}
+  }
+  getProductCategory () : Observable<{ "category_name": string, "product_count": number }[]> {
+    return this.http.get<{ "category_name": string, "product_count": number }[]>('http://localhost:3000/products/category')
+  }
 
 }

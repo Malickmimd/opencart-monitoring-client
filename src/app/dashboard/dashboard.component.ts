@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Component, OnInit } from '@angular/core';
 import { CardComponent } from '../core/components/card/card.component';
 import { NgForOf, NgStyle } from '@angular/common';
@@ -6,7 +7,7 @@ import { TableModule } from 'primeng/table';
 import { Order } from '../core/models/order.model';
 import { Column } from '../core/models/column.model';
 import { CardListComponent } from '../core/components/card-list/card-list.component';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ElectronService } from '../core/services';
 import { AsyncPipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
@@ -29,6 +30,7 @@ export class DashboardComponent implements OnInit{
     ordersList$!: Observable<Order[]>;
     cols!: Column[];
     Data: number[] = []
+    ProductsCategory$!: Observable<{ "category_name": string, "product_count": number }[]>
 
     constructor(private dashboardService: ElectronService) {}
 
@@ -36,6 +38,7 @@ export class DashboardComponent implements OnInit{
         this.numberOfOrders$ = this.dashboardService.getNumberOfOrders()
         this.numberOfProducts$ = this.dashboardService.getNumberOfProducts()
         this.numberOfCustomers$ = this.dashboardService.getNumberOfCustomers()
+        this.ProductsCategory$ = this.dashboardService.getProductCategory()
 
         // Créez un tableau d'observables et attendez qu'ils soient tous résolus
     const observables: Observable<number>[] = [
@@ -50,7 +53,8 @@ export class DashboardComponent implements OnInit{
           // Initialisez les propriétés du composant avec les valeurs reçues
           this.Data = values;
   
-          // Initialisez basicData avec this.Data après que toutes les valeurs ont été reçues
+          // Initialisez basicData avec this.Data après que toutes les valeurs aient été reçues
+          //donhut chart data config
           const documentStyle = getComputedStyle(document.documentElement);
           this.basicData = {
             labels: ['Orders', 'Products', 'Customers'],
@@ -89,7 +93,7 @@ export class DashboardComponent implements OnInit{
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
         
-        //Graphe2 config
+        //donhut chart option config
         this.basicOptions = {
           cutout: '60%',
           plugins: {
@@ -100,32 +104,37 @@ export class DashboardComponent implements OnInit{
                 }
             }
         };
-        //Graphe2 config
+        //donhut chart option config
 
-        //Graphe1 Config
-        this.data = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [
-                {
-                    label: 'First Dataset',
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    fill: false,
-                    borderColor: documentStyle.getPropertyValue('--blue-500'),
-                    tension: 0.4
-                },
-                {
-                    label: 'Second Dataset',
-                    data: [28, 48, 40, 19, 86, 27, 90],
-                    fill: false,
+        //vertical bar chart Config
+        this.ProductsCategory$.pipe(
+            map((categories: { category_name: string, product_count: number }[]) => {
+              const labels: string[] = [];
+              const data: number[] = [];
+              categories.forEach(category => {
+                labels.push(category.category_name);
+                data.push(category.product_count);
+              });
+              return {
+                labels: labels,
+                datasets: [
+                  {
+                    label: 'Number of products in stock per product category',
+                    backgroundColor: documentStyle.getPropertyValue('--pink-500'),
                     borderColor: documentStyle.getPropertyValue('--pink-500'),
-                    tension: 0.4
-                }
-            ]
-        };
-        
+                    data: data
+                  }
+                ]
+              };
+            })
+          ).subscribe((transformedData: { labels: string[], datasets: {label: string, backgroundColor: string, borderColor: string, data: number[]}[] }) => {
+                // Mettre à jour la propriété 'data' avec les données transformées
+                this.data = transformedData;
+            });
+
         this.options = {
             maintainAspectRatio: false,
-            aspectRatio: 0.6,
+            aspectRatio: 0.8,
             plugins: {
                 legend: {
                     labels: {
@@ -136,7 +145,10 @@ export class DashboardComponent implements OnInit{
             scales: {
                 x: {
                     ticks: {
-                        color: textColorSecondary
+                        color: textColorSecondary,
+                        font: {
+                            weight: 500
+                        }
                     },
                     grid: {
                         color: surfaceBorder,
@@ -152,9 +164,10 @@ export class DashboardComponent implements OnInit{
                         drawBorder: false
                     }
                 }
+
             }
         };
-        //Graphe1 config
+        //vertical bar chart config
 
     }
 }
